@@ -6,15 +6,15 @@
 # Regenerate the `resource` blocks after a dependency bump with:
 #     ./scripts/brew_release.sh <version>
 #
-# The top-level `sha256` is a placeholder until the sdist is published to
-# PyPI; `scripts/brew_release.sh` fills in the real digest. See HOMEBREW.md.
+# The url and sha256 below track the published sdist on PyPI;
+# `scripts/brew_release.sh` refreshes them on release. See HOMEBREW.md.
 class HirschSecurefido < Formula
   include Language::Python::Virtualenv
 
   desc "Device configuration CLI for Hirsch SecureKey FIDO2 authenticators"
   homepage "https://github.com/hirschsecure/hirsch-securefido"
-  url "https://files.pythonhosted.org/packages/source/h/hirsch-securefido/hirsch_securefido-1.0.0.tar.gz"
-  sha256 "REPLACE_WITH_SDIST_SHA256"
+  url "https://files.pythonhosted.org/packages/2e/81/9f5f7cce330b19808270600e04db2da397c34e98c061914d394494b36886/hirsch_securefido-1.0.0.tar.gz"
+  sha256 "371d18c41141023c9c6e1530ce961b9a752798d4ffc32d43fe95a6999cd55210"
   license "BSD-3-Clause"
 
   depends_on "python@3.12"
