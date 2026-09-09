@@ -13,7 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-13, ubuntu-latest]
+        # macos-13 was retired on 2025-12-04; its jobs queue forever.
+        os: [macos-14, macos-15, ubuntu-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
