@@ -30,7 +30,7 @@ macOS notes
     are Windows Setup-API concepts. Hardware selection here is done directly on
     the CTAP HID device descriptor's USB Vendor ID, which is the part of the
     original check that is actually meaningful cross-platform.
-  * PC/SC is optional. `pyscard` is not a hard dependency because a Homebrew
+  * PC/SC is optional. `pyscard` is not a hard dependency because a default
     install should not require the PCSC-Lite build toolchain; if it is present,
     NFC/CCID readers are used as a fallback exactly as on Windows.
 
