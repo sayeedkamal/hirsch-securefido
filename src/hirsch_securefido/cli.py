@@ -37,6 +37,7 @@ from .device import (
     platform_summary,
     set_pin,
 )
+from .menu import run_menu, should_show_menu
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -85,6 +86,34 @@ class Style:
 ST = Style()
 
 
+def _supports_unicode(stream=None) -> bool:
+    """
+    Whether the output encoding can represent the box/status glyphs.
+
+    A legacy Windows console (cp1252) or a redirected ASCII stream raises
+    UnicodeEncodeError on '✓', which would crash the tool mid-operation
+    after the PIN had already been changed on the token. Detect it and fall
+    back to ASCII instead.
+    """
+    target = stream if stream is not None else sys.stdout
+    encoding = getattr(target, "encoding", None) or ""
+    try:
+        "✓✗•→".encode(encoding or "ascii")
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+UNICODE_OK = _supports_unicode()
+
+# (unicode, ascii) pairs, chosen so the ASCII fallback stays aligned.
+GLYPH_OK = "✓" if UNICODE_OK else "+"
+GLYPH_FAIL = "✗" if UNICODE_OK else "x"
+GLYPH_WARN = "!"
+GLYPH_BULLET = "•" if UNICODE_OK else "*"
+GLYPH_ARROW = "→" if UNICODE_OK else "->"
+
+
 def _out(msg: str = "") -> None:
     print(msg)
 
@@ -94,15 +123,15 @@ def _err(msg: str) -> None:
 
 
 def _ok(msg: str) -> None:
-    _out(f"{ST.green('✓')} {msg}")
+    _out(f"{ST.green(GLYPH_OK)} {msg}")
 
 
 def _warn(msg: str) -> None:
-    _out(f"{ST.yellow('!')} {msg}")
+    _out(f"{ST.yellow(GLYPH_WARN)} {msg}")
 
 
 def _fail(msg: str) -> None:
-    _err(f"{ST.red('✗')} {msg}")
+    _err(f"{ST.red(GLYPH_FAIL)} {msg}")
 
 
 # ---------------------------------------------------------------------------
@@ -244,7 +273,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         return EXIT_NO_DEVICE
     _out()
     for transport, product in devices:
-        _out(f"  {ST.green('•')} {transport}" + (f"  {ST.dim(product)}" if product else ""))
+        _out(f"  {ST.green(GLYPH_BULLET)} {transport}" + (f"  {ST.dim(product)}" if product else ""))
     _out()
     return EXIT_OK
 
@@ -304,7 +333,7 @@ def cmd_reset(args: argparse.Namespace) -> int:
         # CTAPHID status 2 = "waiting for user presence"
         if status == 2 and not touched["seen"]:
             touched["seen"] = True
-            _out(f"  {ST.cyan('→')} Waiting for you to touch the token...")
+            _out(f"  {ST.cyan(GLYPH_ARROW)} Waiting for you to touch the token...")
 
     factory_reset(any_vendor=args.any_vendor, on_keepalive=on_keepalive)
     _out()
@@ -374,12 +403,38 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    raw_args = list(sys.argv[1:] if argv is None else argv)
+
+    # A bare interactive invocation gets the menu; a bare piped invocation
+    # keeps printing help, so scripts never block on a prompt.
+    if should_show_menu(raw_args):
+        return _run_interactive_menu(parser)
+
+    args = parser.parse_args(raw_args)
 
     if not getattr(args, "command", None):
         parser.print_help()
         return EXIT_OK
 
+    return _dispatch(args)
+
+
+def _run_interactive_menu(parser: argparse.ArgumentParser) -> int:
+    """Drive the menu, routing each choice back through the real subcommands."""
+
+    def dispatch(command: str) -> int:
+        # Re-parse through argparse so the menu path and the command-line
+        # path execute identical code, including every default.
+        return _dispatch(parser.parse_args([command]))
+
+    try:
+        return run_menu(dispatch, ST)
+    except SystemExit as exc:
+        return int(exc.code or EXIT_OK)
+
+
+def _dispatch(args: argparse.Namespace) -> int:
+    """Run one command, mapping device errors onto stable exit codes."""
     try:
         return args.func(args)
     except DeviceNotFoundError as exc:

@@ -45,6 +45,33 @@ pip install "hirsch-securefido[pcsc]"
 
 ## Usage
 
+Run it with no arguments for an interactive menu:
+
+```
+$ hirsch-securefido
+
+  Hirsch SecureFIDO Device Config  v1.0.0
+  --------------------------------------------------------
+  Hirsch SecureKey  USB HID (VID 04E6)  PIN set, 8 attempt(s) left
+  --------------------------------------------------------
+
+    1  Device information
+    2  Set PIN
+    3  Change PIN
+    4  Factory reset
+    r  Refresh device status
+    q  Quit
+
+  Select an option:
+```
+
+The header shows live device status and refreshes after every action. The
+menu appears **only** on an interactive terminal: with a piped stdin or
+redirected stdout the tool prints help and exits, so scripts never block on a
+prompt.
+
+Every operation is also available directly:
+
 ```bash
 hirsch-securefido info              # human-readable device report
 hirsch-securefido info --json       # machine-readable, for MDM tooling
