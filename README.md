@@ -1,0 +1,111 @@
+# Hirsch SecureFIDO Device Config
+
+Command-line device configuration for Hirsch SecureKey / SecureKey GOV FIDO2
+authenticators on macOS.
+
+This is the **device configuration subset** extracted from the Windows
+*Hirsch SecureFIDO Cred Manager*. It provides exactly four operations:
+
+| Command | Description |
+| --- | --- |
+| `info` | Read authenticator info: AAGUID, versions, options, limits, PIN retries |
+| `set-pin` | Set the initial PIN on a factory-fresh token |
+| `change-pin` | Change an existing PIN |
+| `reset` | Factory reset: erase all credentials and clear the PIN |
+
+Credential enumeration and deletion are intentionally **not** included.
+
+## Install
+
+### Homebrew
+
+```bash
+brew tap hirschsecure/tap
+brew install hirsch-securefido
+```
+
+### PyPI
+
+```bash
+pip install hirsch-securefido
+
+# with NFC / CCID reader support
+pip install "hirsch-securefido[pcsc]"
+```
+
+## Usage
+
+```bash
+hirsch-securefido info              # human-readable device report
+hirsch-securefido info --json       # machine-readable, for MDM tooling
+hirsch-securefido list              # enumerate connected authenticators
+
+hirsch-securefido set-pin           # prompts for a new PIN, twice
+hirsch-securefido change-pin        # prompts for current then new PIN
+hirsch-securefido reset             # requires typing RESET, then a touch
+```
+
+By default only Hirsch authenticators (USB Vendor ID `04E6`) are accepted.
+Pass `--any-vendor` to work with other FIDO2 keys.
+
+### Unattended use
+
+PINs may be supplied by environment variable for provisioning scripts:
+
+```bash
+HIRSCH_PIN=oldpin HIRSCH_NEW_PIN=newpin hirsch-securefido change-pin
+hirsch-securefido reset --yes
+```
+
+PINs are also read from stdin when it is not a TTY:
+
+```bash
+echo "123456" | hirsch-securefido set-pin
+```
+
+### Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Success |
+| `1` | General device error |
+| `2` | No authenticator found |
+| `3` | PIN rejected or blocked |
+| `4` | Operation unsupported by the token |
+| `130` | Cancelled by the user |
+
+## Factory reset
+
+CTAP requires a factory reset to arrive within a few seconds of the token
+powering up, confirmed by a physical touch. The `reset` command therefore
+prompts you to unplug and re-insert the token first. If you see
+"a factory reset must be started within a few seconds", re-insert the key and
+run the command again promptly.
+
+A reset destroys every passkey on the device and clears the PIN. You will lose
+access to any account that relies on this key as its only factor.
+
+## macOS notes
+
+The Windows original auto-elevated to Administrator, because non-elevated
+Windows processes cannot open FIDO HID authenticators. macOS grants HID access
+to the console user, so **no `sudo` is required**. The Windows-only
+`winscard.dll` / `cfgmgr32.dll` hardware gate and disconnect watchdog have been
+replaced by a direct USB Vendor ID check on the CTAP HID descriptor.
+
+`pyscard` is optional. Install the `pcsc` extra only if you need NFC or
+smart-card readers; it requires the PCSC-Lite build toolchain.
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest
+ruff check src tests
+```
+
+The test suite runs entirely against fakes, so no hardware is needed.
+
+## License
+
+BSD 3-Clause. See [LICENSE](LICENSE).

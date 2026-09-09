@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hirsch-securefido"
+version = "1.0.0"
+description = "Device configuration for Hirsch SecureKey FIDO2 authenticators: device info, set PIN, change PIN, factory reset."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Hirsch Secure, Inc." }]
+keywords = ["fido2", "ctap", "webauthn", "passkey", "security-key", "hirsch", "macos"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Hardware",
+]
+dependencies = [
+    "fido2>=1.1.0",
+]
+
+[project.optional-dependencies]
+# NFC / CCID reader support. Kept optional so a Homebrew install does not
+# require the PCSC-Lite build toolchain.
+pcsc = ["pyscard>=2.0.0"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "build>=1.0",
+    "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/hirschsecure/hirsch-securefido"
+Repository = "https://github.com/hirschsecure/hirsch-securefido"
+Issues = "https://github.com/hirschsecure/hirsch-securefido/issues"
+
+[project.scripts]
+hirsch-securefido = "hirsch_securefido.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hirsch_securefido"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/Formula",
+    "/scripts",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
