@@ -3,17 +3,27 @@
 Command-line device configuration for Hirsch SecureKey / SecureKey GOV FIDO2
 authenticators on macOS.
 
-This is the **device configuration subset** extracted from the Windows
+This is the **device configuration subset** of the Windows
 *Hirsch SecureFIDO Cred Manager*. It provides exactly four operations:
 
-| Command | Description |
-| --- | --- |
-| `info` | Read authenticator info: AAGUID, versions, options, limits, PIN retries |
-| `set-pin` | Set the initial PIN on a factory-fresh token |
-| `change-pin` | Change an existing PIN |
-| `reset` | Factory reset: erase all credentials and clear the PIN |
+| Command | Description | Origin |
+| --- | --- | --- |
+| `info` | Read authenticator info: AAGUID, versions, options, limits, PIN retries | ported from the Windows app |
+| `set-pin` | Set the initial PIN on a factory-fresh token | new |
+| `change-pin` | Change an existing PIN | new |
+| `reset` | Factory reset: erase all credentials and clear the PIN | new |
 
-Credential enumeration and deletion are intentionally **not** included.
+Only the device-info view existed in the Windows original. It read
+authenticator info and rendered the AAGUID, versions, options, and limits;
+that logic, including the option labels and COSE algorithm names, is carried
+over here. The Windows app could *report* on the PIN (retry count, whether one
+was set) and could surface PIN errors, but it had no way to set, change, or
+clear one: it only ever called `getPinToken` to authenticate credential
+management. Set PIN, Change PIN, and Factory Reset are therefore newly
+implemented against CTAP `authenticatorClientPIN` and `authenticatorReset`.
+
+Credential enumeration and deletion, which were the Windows app's main
+purpose, are intentionally **not** included.
 
 ## Install
 

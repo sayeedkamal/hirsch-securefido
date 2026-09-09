@@ -58,8 +58,15 @@ include = [
     "/tests",
     "/README.md",
     "/LICENSE",
+    "/PUBLISHING.md",
     "/Formula",
     "/scripts",
+]
+# Underscore-prefixed scripts are throwaway diagnostics; never ship them.
+exclude = [
+    "scripts/_*.py",
+    "**/__pycache__",
+    "**/*.pyc",
 ]
 
 [tool.pytest.ini_options]

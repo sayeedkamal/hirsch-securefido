@@ -27,6 +27,10 @@ SecureFIDO toolset:
     * change-pin       - change an existing PIN
     * reset            - factory reset (destroys all credentials and the PIN)
 
+Only device info is a port of the Windows Cred Manager's device-details view.
+Set PIN, Change PIN, and Factory Reset did not exist in that application and
+are implemented here against CTAP authenticatorClientPIN / authenticatorReset.
+
 Credential enumeration/deletion is deliberately NOT part of this package.
 """
 

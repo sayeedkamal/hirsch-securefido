@@ -5,10 +5,21 @@
 """
 Device configuration layer (CTAP 2.x, python-fido2).
 
-Extracted from the Hirsch SecureFIDO Cred Manager and reduced to the four
-device-configuration operations. All credential-management code
-(getCredsMetadata / enumerateRPs / enumerateCredentials / deleteCredential)
-has been removed.
+Provenance
+----------
+Only `get_device_info` is a port: the Windows Cred Manager's device-details
+view (`get_device_status` / `_render_details`) supplied the option labels,
+COSE algorithm names, and the fields reported here.
+
+`set_pin`, `change_pin`, and `factory_reset` are NEW. The Windows app could
+report the PIN retry count and surface PIN errors, but it never set, changed,
+or cleared a PIN; it only called getPinToken to authenticate credential
+management. These three are implemented against CTAP authenticatorClientPIN
+(setPIN / changePIN) and authenticatorReset.
+
+All credential-management code (getCredsMetadata / enumerateRPs /
+enumerateCredentials / deleteCredential), which was the original app's main
+purpose, has been dropped.
 
 macOS notes
 -----------

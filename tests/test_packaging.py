@@ -62,6 +62,37 @@ def test_formula_declares_matching_version():
 
 
 def test_readme_documents_every_command():
-    readme = (ROOT / "README.md").read_text()
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for command in ("info", "set-pin", "change-pin", "reset"):
         assert f"hirsch-securefido {command}" in readme
+
+
+def test_readme_states_provenance_honestly():
+    """
+    Only `info` is a port of the Windows app's device-details view; set-pin,
+    change-pin, and reset did not exist there and were written new. The README
+    must not claim otherwise.
+    """
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "ported from the Windows app" in readme
+    assert "new" in readme
+
+    original = ROOT / "hirsch_securefido_cred_manager.py"
+    if original.exists():
+        source = original.read_text(encoding="utf-8")
+        # Guard the claim itself: if the original never called these, the
+        # docs must keep describing them as new work.
+        assert "set_pin" not in source
+        assert "change_pin" not in source
+        assert "ctap2.reset" not in source
+
+
+def test_sdist_excludes_scratch_diagnostics():
+    """
+    scripts/_*.py are throwaway diagnostics. The hatch sdist config must drop
+    them, or a stray debug script ships to PyPI.
+    """
+    with open(ROOT / "pyproject.toml", "rb") as fh:
+        config = tomllib.load(fh)
+    exclude = config["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"]
+    assert "scripts/_*.py" in exclude
