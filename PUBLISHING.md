@@ -60,34 +60,26 @@ python -m venv /tmp/verify && /tmp/verify/bin/pip install hirsch-securefido
 
 ## 3. Homebrew
 
-The formula lives in `Formula/hirsch-securefido.rb` and must be copied into the
-tap repository `hirschsecure/homebrew-tap`.
+See **[HOMEBREW.md](HOMEBREW.md)** for the full walkthrough: tap setup,
+formula-vs-cask, local validation, and troubleshooting.
 
-After the PyPI release is live:
-
-```bash
-./scripts/brew_resources.sh 1.0.0
-```
-
-That prints the sdist `sha256`. Update the formula's `url` and `sha256`, refresh
-the `resource` blocks, then validate on macOS:
+Short version, after the PyPI release is live:
 
 ```bash
+./scripts/brew_release.sh 1.0.0          # rewrites url + sha256, refreshes resources
 brew install --build-from-source Formula/hirsch-securefido.rb
 brew test hirsch-securefido
 brew audit --strict --new hirsch-securefido
 ```
 
-Commit the formula to the tap:
+Then publish to the tap:
 
 ```bash
-cd homebrew-tap
-cp ../hirsch-securefido/Formula/hirsch-securefido.rb Formula/
-git commit -am "hirsch-securefido 1.0.0"
-git push
+cp Formula/hirsch-securefido.rb ../homebrew-tap/Formula/
+cd ../homebrew-tap && git commit -am "hirsch-securefido 1.0.0" && git push
 ```
 
-Users then install with:
+Users install with:
 
 ```bash
 brew tap hirschsecure/tap

@@ -4,10 +4,10 @@
 # Homebrew formula for the Hirsch SecureFIDO device-configuration CLI.
 #
 # Regenerate the `resource` blocks after a dependency bump with:
-#     ./scripts/brew_resources.sh
+#     ./scripts/brew_release.sh <version>
 #
-# `sha256` values below are placeholders until the 1.0.0 sdist is published to
-# PyPI; `scripts/brew_resources.sh` fills in the real digests.
+# The top-level `sha256` is a placeholder until the sdist is published to
+# PyPI; `scripts/brew_release.sh` fills in the real digest. See HOMEBREW.md.
 class HirschSecurefido < Formula
   include Language::Python::Virtualenv
 

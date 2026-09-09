@@ -59,6 +59,7 @@ include = [
     "/README.md",
     "/LICENSE",
     "/PUBLISHING.md",
+    "/HOMEBREW.md",
     "/Formula",
     "/scripts",
 ]

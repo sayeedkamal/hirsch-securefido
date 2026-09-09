@@ -96,3 +96,40 @@ def test_sdist_excludes_scratch_diagnostics():
         config = tomllib.load(fh)
     exclude = config["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"]
     assert "scripts/_*.py" in exclude
+
+
+def test_referenced_scripts_exist():
+    """
+    Docs and the formula name helper scripts by path. A renamed or deleted
+    script leaves instructions that fail when an operator follows them.
+    """
+    import re
+
+    referenced: set[str] = set()
+    for name in ("README.md", "PUBLISHING.md", "HOMEBREW.md"):
+        path = ROOT / name
+        if path.exists():
+            referenced |= set(
+                re.findall(r"scripts/[\w.-]+\.(?:sh|py)", path.read_text(encoding="utf-8"))
+            )
+
+    formula = (ROOT / "Formula" / "hirsch-securefido.rb").read_text(encoding="utf-8")
+    referenced |= set(re.findall(r"scripts/[\w.-]+\.(?:sh|py)", formula))
+
+    missing = [rel for rel in referenced if not (ROOT / rel).exists()]
+    assert not missing, f"referenced but missing: {missing}"
+
+
+def test_homebrew_guide_documents_the_release_order():
+    """
+    Homebrew builds from the PyPI sdist, so publishing to PyPI must come
+    first. A guide that omits this leads to an unresolvable sha256.
+    """
+    guide = (ROOT / "HOMEBREW.md").read_text(encoding="utf-8")
+    assert "brew tap hirschsecure/tap" in guide
+    assert "brew install --build-from-source" in guide
+    assert "brew audit" in guide
+    # The ordering constraint and the formula-vs-cask decision.
+    lowered = guide.lower()
+    assert "publish to pypi" in lowered
+    assert "cask" in lowered
