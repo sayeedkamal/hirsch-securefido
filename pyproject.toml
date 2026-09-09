@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hirsch-securefido"
-version = "1.0.0"
+version = "1.0.1"
 description = "Device configuration for Hirsch SecureKey FIDO2 authenticators: device info, set PIN, change PIN, factory reset."
 readme = "README.md"
 requires-python = ">=3.10"

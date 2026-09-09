@@ -52,7 +52,7 @@ from .device import (
     set_pin,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __app_name__ = "Hirsch SecureFIDO Device Config"
 
 __all__ = [

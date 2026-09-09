@@ -11,6 +11,7 @@ import json
 import pytest
 from conftest import FakeClientPin, ctap_error
 
+import hirsch_securefido
 from hirsch_securefido import cli
 from hirsch_securefido.cli import (
     EXIT_CANCELLED,
@@ -52,7 +53,7 @@ def test_version_flag(capsys):
     with pytest.raises(SystemExit) as excinfo:
         main(["--version"])
     assert excinfo.value.code == 0
-    assert "1.0.0" in capsys.readouterr().out
+    assert hirsch_securefido.__version__ in capsys.readouterr().out
 
 
 def test_help_lists_only_the_four_config_commands(capsys):
