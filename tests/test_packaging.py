@@ -10,7 +10,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import tomllib
+import pytest
+
+try:  # tomllib is stdlib from 3.11; 3.10 needs the tomli backport.
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - depends on interpreter version
+    tomllib = pytest.importorskip("tomli", reason="needs tomllib (3.11+) or tomli")
 
 import hirsch_securefido
 
