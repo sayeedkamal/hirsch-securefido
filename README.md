@@ -27,15 +27,6 @@ purpose, are intentionally **not** included.
 
 ## Install
 
-### Homebrew
-
-```bash
-brew tap hirschsecure/tap
-brew install hirsch-securefido
-```
-
-### PyPI
-
 ```bash
 pip install hirsch-securefido
 
@@ -163,8 +154,8 @@ that never fires) and requires the suite to fail on each one.
 ### What software cannot verify
 
 USB HID transport, the CTAP reset power-up window, and the physical touch
-confirmation have no software equivalent. `brew install` likewise needs macOS.
-These are covered by the manual hardware checklist in
+confirmation have no software equivalent. These are covered by the manual
+hardware checklist in
 [PUBLISHING.md](PUBLISHING.md).
 
 ## License

@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# NFC / CCID reader support. Kept optional so a Homebrew install does not
+# NFC / CCID reader support. Kept optional so a default install does not
 # require the PCSC-Lite build toolchain.
 pcsc = ["pyscard>=2.0.0"]
 dev = [
@@ -59,8 +59,6 @@ include = [
     "/README.md",
     "/LICENSE",
     "/PUBLISHING.md",
-    "/HOMEBREW.md",
-    "/Formula",
     "/scripts",
 ]
 # Underscore-prefixed scripts are throwaway diagnostics; never ship them.

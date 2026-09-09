@@ -15,7 +15,7 @@ twine check dist/*
 
 Confirm the version in `pyproject.toml` and `src/hirsch_securefido/__init__.py`
 match, and that `CHANGELOG` / README reflect the release. `tests/test_packaging.py`
-and `tests/test_formula.py` enforce that agreement automatically.
+and `tests/test_packaging.py` enforce that agreement automatically.
 
 ## 2. PyPI
 
@@ -58,39 +58,15 @@ python -m venv /tmp/verify && /tmp/verify/bin/pip install hirsch-securefido
 /tmp/verify/bin/hirsch-securefido --version
 ```
 
-## 3. Homebrew
+## 3. Post-release
 
-See **[HOMEBREW.md](HOMEBREW.md)** for the full walkthrough: tap setup,
-formula-vs-cask, local validation, and troubleshooting.
-
-Short version, after the PyPI release is live:
+Verify the published artifact from a clean environment:
 
 ```bash
-./scripts/brew_release.sh 1.0.0          # rewrites url + sha256, refreshes resources
-brew install --build-from-source Formula/hirsch-securefido.rb
-brew test hirsch-securefido
-brew audit --strict --new hirsch-securefido
-```
-
-Then publish to the tap:
-
-```bash
-cp Formula/hirsch-securefido.rb ../homebrew-tap/Formula/
-cd ../homebrew-tap && git commit -am "hirsch-securefido 1.0.0" && git push
-```
-
-Users install with:
-
-```bash
-brew tap hirschsecure/tap
-brew install hirsch-securefido
-```
-
-## 4. Post-release
-
-```bash
-brew uninstall hirsch-securefido && brew install hirschsecure/tap/hirsch-securefido
-hirsch-securefido info    # with a real Hirsch key attached
+python -m venv /tmp/postrelease
+/tmp/postrelease/bin/pip install hirsch-securefido
+/tmp/postrelease/bin/hirsch-securefido --version
+/tmp/postrelease/bin/hirsch-securefido info    # with a real Hirsch key attached
 ```
 
 ## Manual hardware verification

@@ -42,7 +42,7 @@ def test_requires_python_supports_310():
 
 
 def test_fido2_is_the_only_hard_dependency():
-    """pyscard must stay optional so Homebrew needs no PCSC toolchain."""
+    """pyscard must stay optional so a default install needs no PCSC toolchain."""
     deps = _pyproject()["project"]["dependencies"]
     assert len(deps) == 1
     assert deps[0].startswith("fido2")
@@ -53,12 +53,6 @@ def test_fido2_is_the_only_hard_dependency():
 def test_public_api_is_the_four_config_operations():
     for name in ("get_device_info", "set_pin", "change_pin", "factory_reset"):
         assert hasattr(hirsch_securefido, name)
-
-
-def test_formula_declares_matching_version():
-    formula = (ROOT / "Formula" / "hirsch-securefido.rb").read_text()
-    assert hirsch_securefido.__version__ in formula
-    assert 'include Language::Python::Virtualenv' in formula
 
 
 def test_readme_documents_every_command():
@@ -100,36 +94,41 @@ def test_sdist_excludes_scratch_diagnostics():
 
 def test_referenced_scripts_exist():
     """
-    Docs and the formula name helper scripts by path. A renamed or deleted
-    script leaves instructions that fail when an operator follows them.
+    Docs name helper scripts by path. A renamed or deleted script leaves
+    instructions that fail when an operator follows them.
     """
     import re
 
     referenced: set[str] = set()
-    for name in ("README.md", "PUBLISHING.md", "HOMEBREW.md"):
+    for name in ("README.md", "PUBLISHING.md"):
         path = ROOT / name
         if path.exists():
             referenced |= set(
                 re.findall(r"scripts/[\w.-]+\.(?:sh|py)", path.read_text(encoding="utf-8"))
             )
 
-    formula = (ROOT / "Formula" / "hirsch-securefido.rb").read_text(encoding="utf-8")
-    referenced |= set(re.findall(r"scripts/[\w.-]+\.(?:sh|py)", formula))
-
     missing = [rel for rel in referenced if not (ROOT / rel).exists()]
     assert not missing, f"referenced but missing: {missing}"
 
 
-def test_homebrew_guide_documents_the_release_order():
+def test_pypi_is_the_only_documented_install_channel():
     """
-    Homebrew builds from the PyPI sdist, so publishing to PyPI must come
-    first. A guide that omits this leads to an unresolvable sha256.
+    pip/PyPI is the supported channel. Stale Homebrew instructions would
+    point users at a tap that is no longer published.
     """
-    guide = (ROOT / "HOMEBREW.md").read_text(encoding="utf-8")
-    assert "brew tap hirschsecure/tap" in guide
-    assert "brew install --build-from-source" in guide
-    assert "brew audit" in guide
-    # The ordering constraint and the formula-vs-cask decision.
-    lowered = guide.lower()
-    assert "publish to pypi" in lowered
-    assert "cask" in lowered
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "pip install hirsch-securefido" in readme
+
+    for name in ("README.md", "PUBLISHING.md"):
+        text = (ROOT / name).read_text(encoding="utf-8").lower()
+        for token in ("brew ", "homebrew", "hirschsecure/tap"):
+            assert token not in text, f"{name} still references {token!r}"
+
+    assert not (ROOT / "HOMEBREW.md").exists()
+    assert not (ROOT / "Formula").exists()
+
+
+def test_publishing_guide_documents_the_pypi_release():
+    guide = (ROOT / "PUBLISHING.md").read_text(encoding="utf-8").lower()
+    assert "trusted publishing" in guide
+    assert "pip install hirsch-securefido" in guide
