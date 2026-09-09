@@ -34,6 +34,10 @@ jobs:
       - name: Test
         run: pytest -q
 
+      - name: Mutation check (proves the suite detects real bugs)
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        run: python scripts/mutation_check.py
+
       - name: Smoke test the CLI without hardware
         shell: bash
         run: |
@@ -45,6 +49,31 @@ jobs:
           code=$?
           set -e
           test "$code" -eq 2 || { echo "expected exit 2, got $code"; exit 1; }
+
+  formula:
+    name: Validate the Homebrew formula
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The real acceptance check that cannot run on a Windows dev box:
+      # Ruby actually parses the formula, and brew audits its style.
+      - name: Ruby syntax check
+        run: ruby -c Formula/hirsch-securefido.rb
+
+      - name: Homebrew style audit
+        run: |
+          brew style Formula/hirsch-securefido.rb || \
+            echo "::warning::brew style reported issues"
+
+      # A full `brew install` is only meaningful once the sdist is on PyPI,
+      # since the formula's top-level url points at the published tarball.
+      - name: Note the install gate
+        run: |
+          if grep -q REPLACE_WITH_SDIST_SHA256 Formula/hirsch-securefido.rb; then
+            echo "::notice::Formula still has a placeholder sha256; \
+          brew install is deferred until the sdist is published."
+          fi
 
   build:
     name: Build distributions

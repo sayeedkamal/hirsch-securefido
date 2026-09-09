@@ -104,7 +104,31 @@ pytest
 ruff check src tests
 ```
 
-The test suite runs entirely against fakes, so no hardware is needed.
+The test suite runs entirely against software authenticators, so no hardware is
+needed. It has two layers:
+
+- `tests/test_device.py`, `tests/test_cli.py` stub out `fido2` to test error
+  handling and CLI behavior in isolation.
+- `tests/test_integration.py` runs the **real** python-fido2 stack (CBOR, ECDH
+  key agreement, AES-CBC PIN encryption, HMAC `pinUvAuthParam`) against the
+  virtual authenticator in `tests/virtual_authenticator.py`, then asserts on
+  the resulting device state.
+
+To confirm the suite actually detects bugs rather than passing vacuously:
+
+```bash
+python scripts/mutation_check.py
+```
+
+This injects plausible defects (swapped PIN arguments, a skipped guard, a reset
+that never fires) and requires the suite to fail on each one.
+
+### What software cannot verify
+
+USB HID transport, the CTAP reset power-up window, and the physical touch
+confirmation have no software equivalent. `brew install` likewise needs macOS.
+These are covered by the manual hardware checklist in
+[PUBLISHING.md](PUBLISHING.md).
 
 ## License
 

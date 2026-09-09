@@ -1,0 +1,11 @@
+# Normalize line endings so a Windows checkout does not rewrite every file.
+* text=auto eol=lf
+
+# Shell scripts must keep LF to remain executable on macOS/Linux.
+*.sh text eol=lf
+
+# Ruby formulae are consumed by Homebrew on macOS.
+*.rb text eol=lf
+
+*.png binary
+*.ico binary

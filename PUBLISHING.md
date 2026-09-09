@@ -8,12 +8,14 @@ Release checklist for `hirsch-securefido`.
 pip install -e ".[dev]"
 ruff check src tests
 pytest -q
+python scripts/mutation_check.py    # suite must detect all injected bugs
 python -m build
 twine check dist/*
 ```
 
 Confirm the version in `pyproject.toml` and `src/hirsch_securefido/__init__.py`
-match, and that `CHANGELOG` / README reflect the release.
+match, and that `CHANGELOG` / README reflect the release. `tests/test_packaging.py`
+and `tests/test_formula.py` enforce that agreement automatically.
 
 ## 2. PyPI
 
@@ -99,9 +101,26 @@ brew uninstall hirsch-securefido && brew install hirschsecure/tap/hirsch-securef
 hirsch-securefido info    # with a real Hirsch key attached
 ```
 
-Hardware paths that CI cannot cover must be checked by hand once per release:
+## Manual hardware verification
 
-- [ ] `info` against a real Hirsch SecureKey over USB HID
+Everything below is **outside** what the automated suite can reach. The tests
+use a virtual authenticator that speaks real CTAP2 CBOR, so protocol logic is
+covered, but USB HID transport, the reset power-up window, and the physical
+touch have no software equivalent.
+
+Run this once per release on macOS with a real Hirsch SecureKey:
+
+- [ ] `hirsch-securefido list` shows the key over USB HID
+- [ ] `hirsch-securefido info` reports the true AAGUID and firmware version
+- [ ] `info` runs **without `sudo`** (the core macOS port claim)
 - [ ] `set-pin` on a factory-fresh token
-- [ ] `change-pin` with correct and incorrect current PINs
-- [ ] `reset` including the re-insert window and the touch prompt
+- [ ] `change-pin` with the correct current PIN
+- [ ] `change-pin` with a wrong PIN decrements the retry counter shown by `info`
+- [ ] `reset` refused when run outside the power-up window
+- [ ] `reset` succeeds when the token is re-inserted, and the touch prompt appears
+- [ ] `reset` cancelled by declining the touch, leaving credentials intact
+- [ ] After a successful `reset`, `info` reports `PIN Set: No`
+- [ ] NFC path with `pip install pyscard` and a card on a reader, if in scope
+
+Record the macOS version, the key's firmware version, and the fido2 version
+used, so a regression can be attributed later.
