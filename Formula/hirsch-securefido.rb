@@ -12,7 +12,7 @@ class HirschSecurefido < Formula
   include Language::Python::Virtualenv
 
   desc "Device configuration CLI for Hirsch SecureKey FIDO2 authenticators"
-  homepage "https://github.com/hirschsecure/hirsch-securefido"
+  homepage "https://github.com/sayeedkamal/hirsch-securefido"
   url "https://files.pythonhosted.org/packages/2e/81/9f5f7cce330b19808270600e04db2da397c34e98c061914d394494b36886/hirsch_securefido-1.0.0.tar.gz"
   sha256 "371d18c41141023c9c6e1530ce961b9a752798d4ffc32d43fe95a6999cd55210"
   license "BSD-3-Clause"

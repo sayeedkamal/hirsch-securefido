@@ -2,7 +2,7 @@ name: Publish
 
 # Publishes to PyPI on a version tag, using Trusted Publishing (OIDC), so no
 # API token is stored in the repository. Configure the publisher once at:
-#   https://pypi.org/manage/project/hirsch-securefido/settings/publishing/
+#   https://pypi.org/manage/project/hirsch-securefido/settings/publishing/  (owner: sayeedkamal)
 
 on:
   push:

@@ -42,9 +42,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hirschsecure/hirsch-securefido"
-Repository = "https://github.com/hirschsecure/hirsch-securefido"
-Issues = "https://github.com/hirschsecure/hirsch-securefido/issues"
+Homepage = "https://github.com/sayeedkamal/hirsch-securefido"
+Repository = "https://github.com/sayeedkamal/hirsch-securefido"
+Issues = "https://github.com/sayeedkamal/hirsch-securefido/issues"
 
 [project.scripts]
 hirsch-securefido = "hirsch_securefido.cli:main"
